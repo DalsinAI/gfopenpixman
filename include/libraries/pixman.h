@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
  *
  * pixman.library's ABI. From 2.0 the library is a thin layer over
- * OpenGPU (DESIGN.md): no upstream Pixman inside. The types below are
+ * GFOpenGPU (DESIGN.md): no upstream Pixman inside. The types below are
  * Pixman 0.46.4's public interface (names, values and layouts, written here
  * from its documented API), so code written against Pixman's types builds
  * against this header unchanged. A file that includes upstream's

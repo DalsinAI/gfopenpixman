@@ -5,7 +5,7 @@
  * (amigachrome-guest's ac_helpers.h): under 64 bytes, GCC's own code as
  * before (pixman.library's own small memcpy and memset in
  * library/pixman_runtime.c, which is never built with this header); from 64
- * bytes, the tagged functions, which run as host code on AmigaChrome and as
+ * bytes, the tagged functions, which run as host code on AmiCradle and as
  * 68k code written for the 68020 and 68040 elsewhere. As openamigaimage's
  * achelpers/ac_string.h.
  * MIT, Copyright (c) 2026 AmigaChrome Team.

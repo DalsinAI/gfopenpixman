@@ -1,12 +1,12 @@
-# OpenAmigaPixman Browser Acceleration Design
+# GFOpenAmigaPixman Browser Acceleration Design
 
-> **17 October 2026:** pixman.library 2.0 is a thin layer over OpenGPU. It has no upstream Pixman inside, and no 68040+FPU, AC090 or AC_MAGIC backend of its own. Read `DESIGN.md` for the call map, the gaps and the stages. This page is kept as the record of why Pixman matters to the browser; its backend plan below is replaced by `DESIGN.md`.
+> **17 October 2026:** pixman.library 2.0 is a thin layer over GFOpenGPU. It has no upstream Pixman inside, and no 68040+FPU, AC090 or AC_MAGIC backend of its own. Read `DESIGN.md` for the call map, the gaps and the stages. This page is kept as the record of why Pixman matters to the browser; its backend plan below is replaced by `DESIGN.md`.
 
 ## Purpose
 
-OpenAmigaPixman is not primarily a word-processor dependency. Its strategic role in AmigaChrome is to become a fast, stable 2D compositing layer underneath the HTML5 browser graphics stack.
+GFOpenAmigaPixman is not primarily a word-processor dependency. Its strategic role in AmiCradle is to become a fast, stable 2D compositing layer underneath the HTML5 browser graphics stack.
 
-The immediate target is AmigaOS 3.x on AmigaChrome with a 68040 + FPU baseline, using upstream Pixman 0.46.4 as the correctness implementation and ABI surface. The design must leave room for AC090, OpenGPU and host-assisted acceleration without requiring browser code to know which backend is active.
+The immediate target is AmigaOS 3.x on AmiCradle with a 68040 + FPU baseline, using upstream Pixman 0.46.4 as the correctness implementation and ABI surface. The design must leave room for AC090, GFOpenGPU and host-assisted acceleration without requiring browser code to know which backend is active.
 
 ## Why It Matters
 
@@ -37,17 +37,17 @@ HTML / CSS / Canvas / WebKit
             |
          Pixman API
             |
-    OpenAmigaPixman layer
+    GFOpenAmigaPixman layer
        /      |       \
-  040+FPU   AC090    OpenGPU
+  040+FPU   AC090    GFOpenGPU
  portable   magic    / host path
        \      |       /
         Amiga bitmap memory
 ```
 
-WebKit and Cairo should express normal rendering operations. They must not contain AC090-specific or AmigaChrome-host-specific code for basic pixel composition.
+WebKit and Cairo should express normal rendering operations. They must not contain AC090-specific or AmiCradle-host-specific code for basic pixel composition.
 
-OpenAmigaPixman owns backend selection and acceleration.
+GFOpenAmigaPixman owns backend selection and acceleration.
 
 ## Baseline Contract
 
@@ -62,7 +62,7 @@ The first production baseline is:
 - single-process Amiga library model;
 - portable C fallback always available.
 
-The FPU baseline is intentional for AmigaChrome's target machine. It does not imply that every hot pixel operation should use floating point. Most blend, mask, fill and copy loops remain integer/memory-bound.
+The FPU baseline is intentional for AmiCradle's target machine. It does not imply that every hot pixel operation should use floating point. Most blend, mask, fill and copy loops remain integer/memory-bound.
 
 ## ABI
 
@@ -153,13 +153,13 @@ A future AC_MAGIC backend can recognise operations such as:
 - SCALE_NEAREST32;
 - SCALE_BILINEAR32.
 
-The request describes buffers, strides, rectangles, formats and operator. The accelerated implementation may execute in guest CPU code, a magic-instruction path or the AmigaChrome host, provided observable Pixman semantics remain identical.
+The request describes buffers, strides, rectangles, formats and operator. The accelerated implementation may execute in guest CPU code, a magic-instruction path or the AmiCradle host, provided observable Pixman semantics remain identical.
 
 Fallback must be per-operation. Unsupported combinations return to the portable Pixman implementation rather than failing the browser.
 
-## OpenGPU / Host Assistance
+## GFOpenGPU / Host Assistance
 
-OpenGPU is an optional backend, not part of the semantic contract.
+GFOpenGPU is an optional backend, not part of the semantic contract.
 
 It may eventually accelerate large composites, image scaling and layer assembly. Small operations must remain local when offload overhead is larger than the work itself.
 
@@ -179,7 +179,7 @@ The implementation should:
 - keep cacheable working surfaces in Fast RAM;
 - defer display-format conversion to the presentation boundary.
 
-For AmigaChrome/OpenRTG, the ideal path is a chunky 32-bit browser surface through composition to presentation with the fewest possible copies.
+For AmiCradle/GFOpenRTG, the ideal path is a chunky 32-bit browser surface through composition to presentation with the fewest possible copies.
 
 ## Browser Integration
 
@@ -187,13 +187,13 @@ The first browser integration does not require a new WebKit rendering API.
 
 The sequence is:
 
-1. build and qualify OpenAmigaPixman;
+1. build and qualify GFOpenAmigaPixman;
 2. link the existing Cairo/WebKit dependency path against it;
 3. verify identical rendering on a fixed browser corpus;
 4. instrument Pixman operations and pixels processed;
 5. profile page paint workloads;
 6. optimise the dominant Pixman fast paths;
-7. introduce AC090/OpenGPU dispatch beneath the same ABI.
+7. introduce AC090/GFOpenGPU dispatch beneath the same ABI.
 
 This keeps correctness risk below WebKit.
 
@@ -253,7 +253,7 @@ This is a foundation build, not yet a claim of HTML5 speedup.
 Build and guest-smoke `pixman.library` on 68040 + FPU.
 
 ### B1 - Browser Counters
-Route the WebKit/Cairo Pixman path through OpenAmigaPixman and collect operation frequencies.
+Route the WebKit/Cairo Pixman path through GFOpenAmigaPixman and collect operation frequencies.
 
 ### B2 - 040 Fast Paths
 Optimise the measured Tier 1 operations.
@@ -266,4 +266,4 @@ Run repeatable browser page-paint, scroll, Canvas and image-composition benchmar
 
 ## Design Rule
 
-**Pixman is our pixel engine boundary. WebKit describes what must be painted; OpenAmigaPixman decides the fastest correct way to paint it.**
+**Pixman is our pixel engine boundary. WebKit describes what must be painted; GFOpenAmigaPixman decides the fastest correct way to paint it.**

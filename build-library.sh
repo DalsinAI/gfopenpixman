@@ -1,15 +1,15 @@
 #!/bin/sh
 # Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
-# pixman.library 2.1 for AmigaOS 3.x: a thin layer over OpenGPU (DESIGN.md).
+# pixman.library 2.1 for AmigaOS 3.x: a thin layer over GFOpenGPU (DESIGN.md).
 # No upstream Pixman and no floating point: built for the 68040 with
 # -msoft-float, so it also runs on an LC040 or EC040; the build fails if an
 # FPU instruction or anything undefined gets in. Bare (no startup code or C
-# library), as openamigartg's libraries are. Needs opengpu.library with
-# OpenGPU stream v1.4 at run time.
+# library), as openamigartg's libraries are. Needs gfopengpu.library with
+# GFOpenGPU stream v1.4 at run time.
 #   ./build-library.sh             (STOVE= the os32-gcc16 stove, OUT= default out/)
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-STOVE=${STOVE:-"$HOME/AmigaChrome/stoves/os32-gcc16"}
+STOVE=${STOVE:-"$HOME/AmiCradle/stoves/os32-gcc16"}
 P="$STOVE/prefix"
 CC=${CC:-"$P/bin/m68k-amigaos-gcc"}
 NM=${NM:-"$P/bin/m68k-amigaos-nm"}

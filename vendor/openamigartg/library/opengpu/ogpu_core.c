@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenRTG, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
- * OpenGPU's core (DESIGN.md section 5): one rasterizer for every back end.
+ * GFOpenGPU's core (DESIGN.md section 5): one rasterizer for every back end.
  * The 68k runs it as the CPU back end, the Cradle's runtime runs it behind
  * ACRTG.gpu, and a PiStorm's spare ARM core runs it behind PiStorm.gpu;
  * tests/test_opengpu.c checks it against simple per-pixel references and
@@ -617,7 +617,7 @@ OP_FN op_pixels(struct ogpu_core *c, const ogpu_u8 *a) {
             continue;
         }
         if (t->format == OGPU_FMT_XRGB32 && (format == OGPU_FMT_ARGB32 || format == OGPU_FMT_XRGB32)) {
-            /* The colour as it is, X 0: a 32-bit OpenRTG screen's ARGB pixels. */
+            /* The colour as it is, X 0: a 32-bit GFOpenRTG screen's ARGB pixels. */
             for (i = 0; i < w; i++, sp += 4, dp += 4) { dp[0] = 0; dp[1] = sp[1]; dp[2] = sp[2]; dp[3] = sp[3]; }
             continue;
         }

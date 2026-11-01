@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * Building an OGPU stream v1.2 (stream.h) in memory. Link library code: the
- * calls write words into the caller's buffer and never call opengpu.library,
+ * calls write words into the caller's buffer and never call gfopengpu.library,
  * so building a batch costs no library calls; OGPU_Submit sends it.
  * A batch that runs out of room sets `overflow` and stops growing. */
 #ifndef OPENGPU_BUILD_H

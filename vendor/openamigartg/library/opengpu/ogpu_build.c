@@ -1,10 +1,10 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenRTG, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
- * Building OGPU stream v1 batches (include/opengpu/build.h). Words are
+ * Building OGPU stream v1 batches (include/gfopengpu/build.h). Words are
  * written byte by byte, high byte first, so a batch built on any CPU is the
  * same bytes. */
-#include "../../include/opengpu/build.h"
+#include "../../include/gfopengpu/build.h"
 
 void ogpu_batch_init(struct OGPUBatch *b, void *buf, long cap_words) {
     b->buf = buf; b->cap = cap_words; b->words = 0; b->overflow = 0;

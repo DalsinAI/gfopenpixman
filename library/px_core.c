@@ -1,11 +1,11 @@
 /* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
  *
  * pixman.library's core (px_core.h, DESIGN.md). Each call is checked, its
- * rectangles clipped and its images described to OpenGPU as surfaces; the
- * pixels are OpenGPU's work (FILL, COPY, COMPOSITE_PD). What OpenGPU can't
+ * rectangles clipped and its images described to GFOpenGPU as surfaces; the
+ * pixels are GFOpenGPU's work (FILL, COPY, COMPOSITE_PD). What GFOpenGPU can't
  * do yet is refused and counted, never drawn here. */
 #include "px_core.h"
-#include "../vendor/openamigartg/include/opengpu/build.h"
+#include "../vendor/openamigartg/include/gfopengpu/build.h"
 
 #define PX_MAGIC 0x50584931UL           /* 'PXI1' */
 enum { PX_BITS = 1, PX_SOLID = 2 };
@@ -15,7 +15,7 @@ struct px_image {
     long refs;
     int kind;
     pixman_format_code_t format;
-    int ofmt;                           /* OpenGPU's format, 0 for a solid */
+    int ofmt;                           /* GFOpenGPU's format, 0 for a solid */
     int bpp;                            /* bytes a pixel */
     int w, h, stride;                   /* stride in bytes */
     uint32_t *bits;
@@ -31,7 +31,7 @@ static int is_image(const pixman_image_t *p) { return p && IMG(p)->magic == PX_M
 
 /* ---- formats ---------------------------------------------------------------------- */
 
-/* Pixman's formats OpenGPU has, in the Amiga's byte order (big-endian:
+/* Pixman's formats GFOpenGPU has, in the Amiga's byte order (big-endian:
  * a8r8g8b8 is the bytes A, R, G, B). */
 static int ogpu_format(pixman_format_code_t f, int *bpp) {
     switch ((unsigned long)f) {
@@ -52,7 +52,7 @@ static unsigned long argb_of(const pixman_color_t *c) {
            (unsigned long)(c->green >> 8) << 8 | (unsigned long)(c->blue >> 8);
 }
 
-/* An 8888 colour as a raw pixel of an OpenGPU format (FILL's colour). */
+/* An 8888 colour as a raw pixel of a GFOpenGPU format (FILL's colour). */
 static unsigned long raw_of(unsigned long argb, int ofmt) {
     unsigned long a = argb >> 24 & 255, r = argb >> 16 & 255, g = argb >> 8 & 255, b = argb & 255;
     switch (ofmt) {
@@ -164,7 +164,7 @@ static void surface_of(const struct px_env *e, struct OGPUBatch *b, int slot, co
 }
 
 /* An integer translation (or none): its offset in *tx, *ty. 0 for any
- * other transform, which OpenGPU can't sample yet (DESIGN.md, "Gaps"). */
+ * other transform, which GFOpenGPU can't sample yet (DESIGN.md, "Gaps"). */
 static int translation(const struct px_image *im, int *tx, int *ty) {
     const pixman_fixed_t (*m)[3] = im->transform.matrix;
     *tx = *ty = 0;
@@ -181,7 +181,7 @@ static int wrap(int v, int n) { v %= n; return v < 0 ? v + n : v; }
 
 /* A source or mask, for COMPOSITE_PD: *word is its slot or colour or alpha,
  * *flags its OGPU_PD_ flags, *sx, *sy where the clipped rectangle's corner
- * reads it. 0 when OpenGPU can't take it. */
+ * reads it. 0 when GFOpenGPU can't take it. */
 static int operand(const struct px_image *im, int is_mask, int slot, int x, int y, int w, int h,
                    unsigned long *word, unsigned long *flags, int *sx, int *sy) {
     int tx, ty;

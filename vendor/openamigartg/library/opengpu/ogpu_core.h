@@ -1,14 +1,14 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenRTG, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
- * OpenGPU's core: carries out an OGPU stream v1.2 (include/opengpu/stream.h).
+ * GFOpenGPU's core: carries out an OGPU stream v1.2 (include/gfopengpu/stream.h).
  * Plain C with no C library and no floating point, so the same file builds
  * for the 68k (the CPU back end), for the Cradle's runtime and for the
  * PiStorm's spare ARM core. */
 #ifndef OGPU_CORE_H
 #define OGPU_CORE_H
 
-#include "../../include/opengpu/stream.h"
+#include "../../include/gfopengpu/stream.h"
 
 typedef unsigned char  ogpu_u8;
 typedef unsigned short ogpu_u16;
