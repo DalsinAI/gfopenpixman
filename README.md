@@ -10,7 +10,9 @@ No upstream Pixman is inside the library. Upstream Pixman 0.46.4 is the referenc
 ## Baseline
 
 - **Interface:** Pixman 0.46.4's types and calls, through the LVOs in `library/pixman_lib.sfd` (unchanged from 1.0) and the request blocks in `include/libraries/pixman.h`.
-- **Library version:** 2.0.
+- **Library version:** 2.1.
+  - 2.1 (1 November 2026): region unions and intersections grow their output as they go and walk the bands in one pass. Before, a region of a few hundred boxes asked for a block of megabytes, and the call failed on an Amiga.
+  - 2.0 (17 October 2026): the thin layer over OpenGPU, with no upstream Pixman inside.
 - **Needs:** opengpu.library with OpenGPU stream v1.4 (COMPOSITE_PD; DalsinAI/openamigartg). Without it, `OpenLibrary("pixman.library")` fails.
 - **CPU:** 68040, soft float. The library has no floating point at all, so it also runs on an LC040 or EC040. The build fails if an FPU instruction gets in.
 - **Formats:** a8r8g8b8, x8r8g8b8, b8g8r8a8, r5g6b5, x1r5g5b5 and a8.

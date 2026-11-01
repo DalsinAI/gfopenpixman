@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
-# pixman.library 2.0's tests on the host: tests/pixmantest.c, big-endian on a
+# pixman.library 2.1's tests on the host: tests/pixmantest.c, big-endian on a
 # 68040 (m68k-linux-gnu-gcc and qemu-m68k), against upstream Pixman 0.46.4
 # built here from its release tarball for the test only (tarballs/, as
 # fetch-sources.sh fetches it). Pixman is never linked into the library.
