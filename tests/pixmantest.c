@@ -49,7 +49,8 @@ static void *lo_calloc(size_t n, size_t k) {
 /* ---- the core's environment: memory as it is, OpenGPU's core run in place ---- */
 
 static ogpu_u8 *map(void *user, ogpu_u32 address, ogpu_u32 length) { (void)user; (void)length; return (ogpu_u8 *)(unsigned long)address; }
-static void *t_alloc(void *ctx, unsigned long n) { (void)ctx; return calloc(1, n ? n : 1); }
+static unsigned long t_biggest;                       /* the biggest block asked for */
+static void *t_alloc(void *ctx, unsigned long n) { (void)ctx; if (n > t_biggest) t_biggest = n; return calloc(1, n ? n : 1); }
 static void t_free(void *ctx, void *p) { (void)ctx; free(p); }
 static unsigned long t_address(void *ctx, const void *p) { (void)ctx; return (unsigned long)p; }
 static long t_submit(void *ctx, const void *stream, long words) {
@@ -242,19 +243,21 @@ static void rects(int n) {
     printf("fill_rectangles: %d cases\n", n);
 }
 
-/* a random region, built the same way on both sides */
-static void rand_region(pixman_region32_t *up, pixman_region32_t *ours) {
-    int i, k = (int)(rnd() % 6);
+/* a random region of up to k rectangles, each up to size x size, in a span x
+ * span area, built the same way on both sides */
+static void rand_region_n(pixman_region32_t *up, pixman_region32_t *ours, int k, int span, unsigned size) {
+    int i;
     pixman_region32_init(up); px_region32_init(ours);
     for (i = 0; i < k; i++) {
-        int x = (int)(rnd() % 60) - 10, y = (int)(rnd() % 60) - 10;
-        unsigned w = rnd() % 30, h = rnd() % 30;
+        int x = (int)(rnd() % (unsigned)span) - span / 6, y = (int)(rnd() % (unsigned)span) - span / 6;
+        unsigned w = rnd() % size, h = rnd() % size;
         pixman_region32_t ru, ro;
         pixman_region32_init_rect(&ru, x, y, w, h); px_region32_init_rect(&ro, x, y, w, h);
         pixman_region32_union(up, up, &ru); px_region32_union(&ENV, ours, ours, &ro);
         pixman_region32_fini(&ru); px_region32_fini(&ENV, &ro);
     }
 }
+static void rand_region(pixman_region32_t *up, pixman_region32_t *ours) { rand_region_n(up, ours, (int)(rnd() % 6), 60, 30); }
 
 static int same_region(pixman_region32_t *up, pixman_region32_t *ours) {
     int nu, i;
@@ -287,6 +290,55 @@ static void regions(int n) {
         px_region32_fini(&ENV, &oa); px_region32_fini(&ENV, &ob); px_region32_fini(&ENV, &orr); px_region32_fini(&ENV, &oc);
     }
     printf("region32: %d cases\n", n);
+}
+
+static long nboxes(const pixman_region32_t *r) {
+    return r->data ? r->data->numRects : (r->extents.x2 > r->extents.x1 && r->extents.y2 > r->extents.y1);
+}
+
+/* Big regions: hundreds of rectangles, and stripes whose union has a box
+ * for every crossing. The results must match Pixman's, and no block the
+ * library asks for may be more than about twice the boxes in and out: the
+ * output grows as it needs to, not sized for the worst case up front. */
+static void big_regions(int n) {
+    int iter;
+    for (iter = 0; iter < n; iter++) {
+        pixman_region32_t ua, oa, ub, ob, ur, orr;
+        int op;
+        if (iter % 4 == 3) {                        /* 60 columns and 60 rows */
+            int i;
+            pixman_region32_init(&ua); px_region32_init(&oa); pixman_region32_init(&ub); px_region32_init(&ob);
+            for (i = 0; i < 60; i++) {
+                pixman_region32_t ru, ro;
+                pixman_region32_init_rect(&ru, i * 10, 0, 5, 600); px_region32_init_rect(&ro, i * 10, 0, 5, 600);
+                pixman_region32_union(&ua, &ua, &ru); px_region32_union(&ENV, &oa, &oa, &ro);
+                pixman_region32_fini(&ru); px_region32_fini(&ENV, &ro);
+                pixman_region32_init_rect(&ru, 0, i * 10, 600, 5); px_region32_init_rect(&ro, 0, i * 10, 600, 5);
+                pixman_region32_union(&ub, &ub, &ru); px_region32_union(&ENV, &ob, &ob, &ro);
+                pixman_region32_fini(&ru); px_region32_fini(&ENV, &ro);
+            }
+        } else {
+            rand_region_n(&ua, &oa, 250, 1200, 60);
+            rand_region_n(&ub, &ob, 250, 1200, 60);
+        }
+        if (!same_region(&ua, &oa) || !same_region(&ub, &ob)) FAIL("big region %d: building", iter);
+        for (op = 0; op < 2; op++) {
+            long bound;
+            pixman_region32_init(&ur); px_region32_init(&orr);
+            t_biggest = 0;
+            if (op) { pixman_region32_union(&ur, &ua, &ub); if (!px_region32_union(&ENV, &orr, &oa, &ob)) FAIL("big region %d: union failed", iter); }
+            else { pixman_region32_intersect(&ur, &ua, &ub); if (!px_region32_intersect(&ENV, &orr, &oa, &ob)) FAIL("big region %d: intersect failed", iter); }
+            if (!same_region(&ur, &orr)) FAIL("big region %d: %s", iter, op ? "union" : "intersect");
+            bound = 2 * (nboxes(&oa) + nboxes(&ob) + nboxes(&orr) + 4) * (long)sizeof(pixman_box32_t) + 64;
+            if ((long)t_biggest > bound)
+                FAIL("big region %d: %s of %ld and %ld boxes asked for %lu bytes in one block (more than %ld)", iter,
+                     op ? "union" : "intersect", nboxes(&oa), nboxes(&ob), t_biggest, bound);
+            pixman_region32_fini(&ur); px_region32_fini(&ENV, &orr);
+        }
+        pixman_region32_fini(&ua); pixman_region32_fini(&ub);
+        px_region32_fini(&ENV, &oa); px_region32_fini(&ENV, &ob);
+    }
+    printf("region32, big: %d cases\n", n);
 }
 
 /* What OpenGPU can't do yet (DESIGN.md, "Gaps") is refused, counted and
@@ -331,6 +383,7 @@ int main(int argc, char **argv) {
     if (strchr(only, 'b')) blts(n / 3);
     if (strchr(only, 'r')) rects(n / 3);
     if (strchr(only, 'g')) regions(n / 3);
+    if (strchr(only, 'g')) big_regions(n / 300 + 4);
     gaps();
     printf("batches %lu, refused %lu, OpenGPU errors %lu\n", ST.batches, ST.refused, ST.errors);
     if (ST.refused || ST.errors) failures++;

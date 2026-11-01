@@ -38,7 +38,7 @@ tests/run.sh [CASES]    # pixman.library against upstream Pixman, on qemu-m68k
 - **`tests/run.sh`** runs `tests/pixmantest.c`. It is built for a big-endian 68040 and runs under qemu-m68k. It runs the library's core and OpenGPU's core beside upstream Pixman, on random cases:
   - composites: every operator and format above, solid and image sources and masks, repeat, translations and clipping;
   - fills, blits and rectangle fills;
-  - region unions, intersections and copies.
+  - region unions, intersections and copies, also of regions with thousands of boxes, where no block asked for may be more than about twice the boxes in and out.
 
   The results must be pixel-exact, apart from the bits a format leaves unused, and nothing may be refused. It also checks that a scaling transform, PAD repeat, a component-alpha mask and SATURATE are refused and leave the pixels alone.
 - **PixmanTest** is the ABI smoke test on AmigaOS.
