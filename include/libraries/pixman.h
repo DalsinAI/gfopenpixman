@@ -98,7 +98,7 @@ typedef const unsigned char *CONST_STRPTR;
 
 #define PIXMANLIB_NAME "pixman.library"
 #define PIXMANLIB_VERSION 2
-#define PIXMANLIB_REVISION 0
+#define PIXMANLIB_REVISION 1
 
 struct PXCreateBits {
     pixman_format_code_t format;

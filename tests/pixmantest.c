@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
  *
- * pixman.library 2.0 against upstream Pixman 0.46.4, pixel for pixel.
+ * pixman.library 2.1 against upstream Pixman 0.46.4, pixel for pixel.
  * Built by tests/run.sh for a big-endian 68040 (m68k-linux-gnu-gcc, run
  * under qemu-m68k): the library's core (library/px_core.c, px_region.c),
  * OpenGPU's core (vendor/openamigartg, the same C the 68k back end of

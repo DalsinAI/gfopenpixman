@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
  *
- * pixman.library 2.0 for AmigaOS 3.x: Pixman's interface (the LVOs in
+ * pixman.library 2.1 for AmigaOS 3.x: Pixman's interface (the LVOs in
  * pixman_lib.sfd, unchanged from 1.0) as a thin layer over OpenGPU
  * (DESIGN.md). px_core.c turns each call into an OpenGPU batch; the pixels
  * are drawn by opengpu.library: by its driver (ACRTG.gpu on AmigaChrome,
@@ -47,9 +47,9 @@ int start(void) { return -1; }
 
 static const char lib_name[] = PIXMANLIB_NAME;
 static const char lib_id[] =
-    "pixman.library 2.0 (17.10.2026) Pixman 0.46.4's interface over OpenGPU, AmigaChrome Team\r\n";
+    "pixman.library 2.1 (1.11.2026) Pixman 0.46.4's interface over OpenGPU, AmigaChrome Team\r\n";
 static const char lib_ver[] __attribute__((used)) =
-    "$VER: pixman.library 2.0 (17.10.2026) Pixman 0.46.4's interface over OpenGPU, AmigaChrome Team";
+    "$VER: pixman.library 2.1 (1.11.2026) Pixman 0.46.4's interface over OpenGPU, AmigaChrome Team";
 
 #define OpenGPUBase (base->gpu)
 #include "../vendor/openamigartg/include/inline/opengpu.h"

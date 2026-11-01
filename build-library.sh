@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
-# pixman.library 2.0 for AmigaOS 3.x: a thin layer over OpenGPU (DESIGN.md).
+# pixman.library 2.1 for AmigaOS 3.x: a thin layer over OpenGPU (DESIGN.md).
 # No upstream Pixman and no floating point: built for the 68040 with
 # -msoft-float, so it also runs on an LC040 or EC040; the build fails if an
 # FPU instruction or anything undefined gets in. Bare (no startup code or C
