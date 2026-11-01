@@ -4,7 +4,7 @@
 # the commit in AMIGACHROME_GUEST_PINNED_COMMIT, built by that ac_helpers.sh
 # into OUTDIR/libachelpers.a, one object for each function in OUTDIR/obj.
 # The sources stay in OUTDIR/src, for -I.
-# MIT, Copyright (c) 2026 AmigaChrome Team.
+# MIT, Copyright (c) 2026 AmiCradle Team.
 #
 #   AMIGACHROME_GUEST  a checkout of amigachrome-guest that has the pinned
 #                      commit (default: amigachrome-guest, else guest, beside

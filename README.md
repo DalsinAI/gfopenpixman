@@ -57,4 +57,4 @@ tests/run.sh [CASES]    # pixman.library against upstream Pixman, on qemu-m68k
 
 ## Licensing
 
-OpenAmigaPixman's library, ABI and test code are MIT licensed by the AmigaChrome Team. The files in `vendor/openamigartg` keep openamigartg's MIT licence. Upstream Pixman, used by the tests and `build-static.sh` only, keeps its own MIT licence and copyright notices.
+OpenAmigaPixman's library, ABI and test code are MIT licensed by the AmiCradle Team. The files in `vendor/openamigartg` keep openamigartg's MIT licence. Upstream Pixman, used by the tests and `build-static.sh` only, keeps its own MIT licence and copyright notices.

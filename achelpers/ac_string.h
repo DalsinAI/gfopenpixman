@@ -8,7 +8,7 @@
  * bytes, the tagged functions, which run as host code on AmiCradle and as
  * 68k code written for the 68020 and 68040 elsewhere. As openamigaimage's
  * achelpers/ac_string.h.
- * MIT, Copyright (c) 2026 AmigaChrome Team.
+ * MIT, Copyright (c) 2026 AmiCradle Team.
  */
 #ifndef OAP_AC_STRING_H
 #define OAP_AC_STRING_H

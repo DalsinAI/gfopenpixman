@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library's core (DESIGN.md): Pixman's calls turned into GFOpenGPU
  * batches (stream v1.4, openamigartg include/gfopengpu/stream.h). It draws

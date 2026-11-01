@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library 2.1 for AmigaOS 3.x: Pixman's interface (the LVOs in
  * pixman_lib.sfd, unchanged from 1.0) as a thin layer over GFOpenGPU

@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library's core (px_core.h, DESIGN.md). Each call is checked, its
  * rectangles clipped and its images described to GFOpenGPU as surfaces; the

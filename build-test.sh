@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+# Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
 # PixmanTest for AmigaOS 3.x (68040; the harness itself uses the FPU for its timing sums).
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

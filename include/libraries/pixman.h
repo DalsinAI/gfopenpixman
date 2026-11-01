@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library's ABI. From 2.0 the library is a thin layer over
  * GFOpenGPU (DESIGN.md): no upstream Pixman inside. The types below are
