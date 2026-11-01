@@ -3,7 +3,7 @@
 # 68040 + FPU baseline.
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-STOVE=${STOVE:-"$HOME/AmigaChrome/stoves/os32-gcc16"}
+STOVE=${STOVE:-"$HOME/AmiCradle/stoves/os32-gcc16"}
 P="$STOVE/prefix"
 CC=${CC:-"$P/bin/m68k-amigaos-gcc"}
 AR=${AR:-"$P/bin/m68k-amigaos-ar"}
@@ -17,7 +17,7 @@ OBJ="$HERE/work/obj-pixman"
 #   AC_HELPERS  1: Pixman's memcpy, memmove and memset calls of 64 bytes or
 #               more, and pixman.library's own copies and fills, go through
 #               amigachrome-guest's common/amiga/ac_helpers (magic functions
-#               AmigaChrome's AC090 runs as host code; 68k code written for the
+#               AmiCradle's AC090 runs as host code; 68k code written for the
 #               68020 and 68040 on a real Amiga); 0: as before; auto (default):
 #               1 when the pinned amigachrome-guest commit is to hand, else 0
 #   AMIGACHROME_GUEST  checkout holding AMIGACHROME_GUEST_PINNED_COMMIT

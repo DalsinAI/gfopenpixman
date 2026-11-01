@@ -1,10 +1,10 @@
-# OpenAmigaPixman Harness
+# GFOpenAmigaPixman Harness
 
 Guest-side qualification and performance harness for `pixman.library`.
 
 ## Scope
 
-The harness runs on AmigaOS 3.x and uses `timer.device` E-clock timing. It is built for the AmigaChrome 68040 + FPU target.
+The harness runs on AmigaOS 3.x and uses `timer.device` E-clock timing. It is built for the AmiCradle 68040 + FPU target.
 
 It performs deterministic correctness checks and benchmarks:
 
@@ -32,4 +32,4 @@ Run `./build.sh`. By default it uses the frozen first-build snapshot at `~/opena
 
 Each benchmark warms the operation, adaptively chooses a loop count that reaches at least about 180 ms (250 ms for the browser mix), runs three timed samples and reports the median.
 
-The reported MiB/s is an effective traffic model, not a claim about physical bus traffic. It is intended for before/after comparison across OpenAmigaPixman implementations.
+The reported MiB/s is an effective traffic model, not a claim about physical bus traffic. It is intended for before/after comparison across GFOpenAmigaPixman implementations.

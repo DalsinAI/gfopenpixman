@@ -3,7 +3,7 @@
 # PixBench for AmigaOS 3.x (68040; the harness itself uses the FPU for its timing sums).
 set -eu
 HERE=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-STOVE=${STOVE:-"$HOME/AmigaChrome/stoves/os32-gcc16"}
+STOVE=${STOVE:-"$HOME/AmiCradle/stoves/os32-gcc16"}
 CC=${CC:-"$STOVE/prefix/bin/m68k-amigaos-gcc"}
 mkdir -p "$HERE/out/tests"
 "$CC" -m68040 -m68881 -O2 -fno-delete-null-pointer-checks -Wall -Wextra -Werror -noixemul \

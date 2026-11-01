@@ -3,8 +3,8 @@
  * pixman.library 2.1 against upstream Pixman 0.46.4, pixel for pixel.
  * Built by tests/run.sh for a big-endian 68040 (m68k-linux-gnu-gcc, run
  * under qemu-m68k): the library's core (library/px_core.c, px_region.c),
- * OpenGPU's core (vendor/openamigartg, the same C the 68k back end of
- * opengpu.library and the Cradle's runtime run) and upstream Pixman, built
+ * GFOpenGPU's core (vendor/openamigartg, the same C the 68k back end of
+ * gfopengpu.library and the Cradle's runtime run) and upstream Pixman, built
  * from its release tarball for this test only. Pixman is never in the
  * library: it is the reference here.
  *
@@ -23,7 +23,7 @@
 #include "../library/px_core.h"
 #include "../vendor/openamigartg/library/opengpu/ogpu_core.h"
 
-/* On a 64-bit host, everything OpenGPU reads comes from memory below 4 GB
+/* On a 64-bit host, everything GFOpenGPU reads comes from memory below 4 GB
  * (MAP_32BIT), since stream addresses are 32 bits, as the Amiga's are. */
 #if UINTPTR_MAX > 0xFFFFFFFFUL
 #include <sys/mman.h>
@@ -46,7 +46,7 @@ static void *lo_calloc(size_t n, size_t k) {
 #define free(p) ((void)(p))
 #endif
 
-/* ---- the core's environment: memory as it is, OpenGPU's core run in place ---- */
+/* ---- the core's environment: memory as it is, GFOpenGPU's core run in place ---- */
 
 static ogpu_u8 *map(void *user, ogpu_u32 address, ogpu_u32 length) { (void)user; (void)length; return (ogpu_u8 *)(unsigned long)address; }
 static unsigned long t_biggest;                       /* the biggest block asked for */
@@ -341,7 +341,7 @@ static void big_regions(int n) {
     printf("region32, big: %d cases\n", n);
 }
 
-/* What OpenGPU can't do yet (DESIGN.md, "Gaps") is refused, counted and
+/* What GFOpenGPU can't do yet (DESIGN.md, "Gaps") is refused, counted and
  * not drawn: a scaling transform, PAD repeat, a component-alpha mask,
  * SATURATE. */
 static void gaps(void) {
@@ -385,7 +385,7 @@ int main(int argc, char **argv) {
     if (strchr(only, 'g')) regions(n / 3);
     if (strchr(only, 'g')) big_regions(n / 300 + 4);
     gaps();
-    printf("batches %lu, refused %lu, OpenGPU errors %lu\n", ST.batches, ST.refused, ST.errors);
+    printf("batches %lu, refused %lu, GFOpenGPU errors %lu\n", ST.batches, ST.refused, ST.errors);
     if (ST.refused || ST.errors) failures++;
     printf("%s: %d failures\n", failures ? "FAIL" : "PASS", failures);
     return failures ? 1 : 0;

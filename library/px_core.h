@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
  *
- * pixman.library's core (DESIGN.md): Pixman's calls turned into OpenGPU
- * batches (stream v1.4, openamigartg include/opengpu/stream.h). It draws
+ * pixman.library's core (DESIGN.md): Pixman's calls turned into GFOpenGPU
+ * batches (stream v1.4, openamigartg include/gfopengpu/stream.h). It draws
  * nothing itself. Plain C with no Amiga headers, no C library and no
  * floating point, so the same file builds into the library and into the
  * test that runs it beside upstream Pixman (tests/pixmantest.c). */
@@ -14,7 +14,7 @@
 struct px_env {
     void *(*alloc)(void *ctx, unsigned long bytes);   /* cleared memory, or 0 */
     void (*free)(void *ctx, void *p);
-    /* An address as OpenGPU's back ends see it (the Amiga's own). */
+    /* An address as GFOpenGPU's back ends see it (the Amiga's own). */
     unsigned long (*address)(void *ctx, const void *p);
     /* Run a batch of `words` stream words and wait for it: OGPU_OK, or an error. */
     long (*submit)(void *ctx, const void *stream, long words);
@@ -23,9 +23,9 @@ struct px_env {
 
 /* What the core counts (PX_DrawStats in a later ABI; the tests read it). */
 struct px_stats {
-    unsigned long batches;      /* sent to OpenGPU */
+    unsigned long batches;      /* sent to GFOpenGPU */
     unsigned long refused;      /* calls the core can't hand over (DESIGN.md, "Gaps") */
-    unsigned long errors;       /* batches OpenGPU answered with an error */
+    unsigned long errors;       /* batches GFOpenGPU answered with an error */
 };
 
 pixman_image_t *px_image_create_bits(const struct px_env *e, pixman_format_code_t format, int w, int h,

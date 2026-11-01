@@ -1,6 +1,6 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenRTG, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
- * Inline calls for bebbo's m68k-amigaos-gcc, from library/opengpu/opengpu_lib.sfd. */
+ * Inline calls for bebbo's m68k-amigaos-gcc, from library/opengpu/gfopengpu_lib.sfd. */
 #ifndef _INLINE_OPENGPU_H
 #define _INLINE_OPENGPU_H
 #ifndef __INLINE_MACROS_H
@@ -21,7 +21,7 @@
     LP3(0x36, APTR, OGPU_ModuleOpen, CONST_STRPTR, name, a0, ULONG, version, d0, APTR *, table, a1, , OPENGPU_BASE_NAME)
 #define OGPU_ModuleClose(handle) \
     LP1NR(0x3c, OGPU_ModuleClose, APTR, handle, a0, , OPENGPU_BASE_NAME)
-/* 0.6: OpenGfx (opengpu/gfx.h) */
+/* 0.6: GFOpenGfx (gfopengpu/gfx.h) */
 #define OGFX_Version() \
     LP0(0x42, ULONG, OGFX_Version, , OPENGPU_BASE_NAME)
 #define OGFX_InstallPatches() \
@@ -54,7 +54,7 @@
 #define OGFX_ScrollRaster(rp, dx, dy, x0, y0, x1, y1) \
     LP7NR(0x90, OGFX_ScrollRaster, struct RastPort *, rp, a1, LONG, dx, d0, LONG, dy, d1, LONG, x0, d2, LONG, y0, d3, \
           LONG, x1, d4, LONG, y1, d5, , OPENGPU_BASE_NAME)
-/* 0.7: OpenGfx's look hook (opengpu/gfx.h) */
+/* 0.7: GFOpenGfx's look hook (gfopengpu/gfx.h) */
 #define OGFX_RegisterLook(look) \
     LP1(0x96, LONG, OGFX_RegisterLook, struct OGFXLookV1 *, look, a0, , OPENGPU_BASE_NAME)
 #define OGFX_UnregisterLook(owner) \

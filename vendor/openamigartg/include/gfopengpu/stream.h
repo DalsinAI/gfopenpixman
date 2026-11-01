@@ -1,9 +1,9 @@
 /* Copyright (c) 2026 AmigaChrome Team. OpenRTG, MIT licence (LICENSE).
  * SPDX-License-Identifier: MIT
  *
- * OGPU stream v1.3: the bytes every OpenGPU back end receives (DESIGN.md
+ * OGPU stream v1.3: the bytes every GFOpenGPU back end receives (DESIGN.md
  * section 5). v1.1 added A8 coverage masks for anti-aliased text and clip
- * paths (OpenGfx): the A8 format, MASK, and COMPOSITE's MASK, ADD and IN
+ * paths (GFOpenGfx): the A8 format, MASK, and COMPOSITE's MASK, ADD and IN
  * flags. v1.2 (8 October 2026) adds what SDL 2's renderer and Warp3D need:
  * blend modes (as SDL's), FILL_BLEND, LINES_BLEND, POINTS_BLEND,
  * COMPOSITE_AFFINE (scale, rotate, flip, colour modulation), YUV, the
@@ -12,11 +12,11 @@
  * Warp3D alike). An older back end answers OGPU_NONE to OGPU_Query for
  * anything newer than it, so a program asks before it uses any of them.
  * v1.3 (12 October 2026) adds XRGB32, ARGB32's colour without its alpha: a
- * 32-bit OpenRTG screen's pixels, whose top byte is always 0, so ARGB
+ * 32-bit GFOpenRTG screen's pixels, whose top byte is always 0, so ARGB
  * pixels reach one through PIXELS on the GPU, not the 68k.
  * v1.4 (17 October 2026) adds COMPOSITE_PD: Porter-Duff compositing of
  * premultiplied colour, with pixman's operators and rounding, so
- * pixman.library hands its composites to OpenGPU. The 68k's own CPU back end, ACRTG.gpu on the Cradle and
+ * pixman.library hands its composites to GFOpenGPU. The 68k's own CPU back end, ACRTG.gpu on the Cradle and
  * PiStorm.gpu on a spare ARM core all read exactly this, so they draw the
  * same pixels.
  *
@@ -105,9 +105,9 @@
                                            colour), source xy, mask (slot or alpha),
                                            mask xy, xy, wh                               8  */
 /* 0x0030-0x003F: 3D (TRIANGLES, RENDER3D, TEXENV, TEXTURE, DEPTH, CLEAR3D):
- * include/opengpu/stream3d.h. */
+ * include/gfopengpu/stream3d.h. */
 #define OGPU_OP_FENCE           0x00F0  /* id: reported when everything before is done   2  */
-/* 0x0080-0x008F: GPU APIs carried through OpenGPU, run by a back end's
+/* 0x0080-0x008F: GPU APIs carried through GFOpenGPU, run by a back end's
  * extension hook (ogpu_core.ext) in stream order; a back end without one
  * reports OGPU_ERR_BADOP, and OGPU_Query answers OGPU_NONE. */
 #define OGPU_OP_VIRGL           0x0080  /* request address, request bytes: a block of
