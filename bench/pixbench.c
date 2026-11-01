@@ -1,6 +1,6 @@
 /* GFOpenAmigaPixman qualification + performance harness.
  * Runs on AmigaOS 3.x and times pixman.library with timer.device E-clock.
- * Copyright (c) 2026 AmigaChrome Team. MIT. */
+ * Copyright (c) 2026 AmiCradle Team. MIT. */
 #include <exec/types.h>
 #include <exec/libraries.h>
 #include <exec/memory.h>

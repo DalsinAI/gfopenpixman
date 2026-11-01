@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. */
+/* Copyright (c) 2026 AmiCradle Team. */
 #ifndef PROTO_PIXMAN_H
 #define PROTO_PIXMAN_H
 #include <exec/types.h>

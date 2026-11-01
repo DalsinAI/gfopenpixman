@@ -1,5 +1,5 @@
 /* Minimal process-free runtime used by resident pixman.library.
- * Copyright (c) 2026 AmigaChrome Team. MIT.
+ * Copyright (c) 2026 AmiCradle Team. MIT.
  *
  * A resident Amiga library must not depend on a caller process' libc startup
  * or stdio state. Keep the few C-runtime facilities Pixman needs local.

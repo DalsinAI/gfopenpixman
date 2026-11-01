@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library 2.1 against upstream Pixman 0.46.4, pixel for pixel.
  * Built by tests/run.sh for a big-endian 68040 (m68k-linux-gnu-gcc, run

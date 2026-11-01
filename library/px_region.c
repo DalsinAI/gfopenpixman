@@ -1,4 +1,4 @@
-/* Copyright (c) 2026 AmigaChrome Team. MIT licence (LICENSE).
+/* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * Pixman's region32 calls (px_core.h) in Pixman's public data layout: the
  * extents, then data, which is 0 for one rectangle (the extents) or points
