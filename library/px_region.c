@@ -72,91 +72,110 @@ int px_region32_copy(const struct px_env *e, pixman_region32_t *dst, const pixma
     return set_boxes(e, dst, b, n);
 }
 
-/* The x spans of region r's band that covers y0..y1 (r's boxes either cover
- * it whole or not at all, since the band edges include all of r's). */
-static long spans_at(const pixman_box32_t *b, long n, int y0, int *xs, long cap) {
-    long i, k = 0;
-    for (i = 0; i < n; i++)
-        if (b[i].y1 <= y0 && b[i].y2 > y0 && k + 2 <= cap) { xs[k++] = b[i].x1; xs[k++] = b[i].x2; }
-    return k;
+/* Region r's band that covers y0..y1, as its first box (*s) and its count;
+ * 0 if r has no band there. r's band edges are among the cut points, so a
+ * band covers a cut whole or not at all. y0 only grows, so *s only moves
+ * forward: the walk over all cuts is linear. *l caches the band's count. */
+static long band_at(const pixman_box32_t *b, long n, long *s, long *l, int y0) {
+    for (;;) {
+        if (*s >= n) return 0;
+        if (!*l) {
+            long k = *s + 1;
+            while (k < n && b[k].y1 == b[*s].y1) k++;
+            *l = k - *s;
+        }
+        if (b[*s].y2 > y0) break;
+        *s += *l; *l = 0;
+    }
+    return b[*s].y1 <= y0 ? *l : 0;
 }
 
-/* the sorted, distinct y edges of both regions */
-static long edges(const pixman_box32_t *a, long na, const pixman_box32_t *b, long nb, int *ys) {
-    long i, j, k = 0;
-    for (i = 0; i < na; i++) { ys[k++] = a[i].y1; ys[k++] = a[i].y2; }
-    for (i = 0; i < nb; i++) { ys[k++] = b[i].y1; ys[k++] = b[i].y2; }
-    for (i = 1; i < k; i++) {                       /* insertion sort: regions here are small */
-        int v = ys[i];
-        for (j = i - 1; j >= 0 && ys[j] > v; j--) ys[j + 1] = ys[j];
-        ys[j + 1] = v;
+/* r's next band edge above y0, or `none' when r has no more */
+static int next_edge(const pixman_box32_t *b, long n, long s, int y0, int none) {
+    if (s >= n) return none;
+    return b[s].y1 > y0 ? b[s].y1 : b[s].y2;
+}
+
+/* room for `more' boxes after the first `used' of *out (capacity *cap):
+ * the output grows as it needs to, rather than being sized for the worst
+ * case up front. 0 when memory runs out. */
+static int room(const struct px_env *e, pixman_box32_t **out, long *cap, long used, long more) {
+    long want = *cap, i;
+    pixman_box32_t *o;
+    if (more <= *cap - used) return 1;
+    while (more > want - used) {
+        if (want > 0x7FFFFFFFL / 2 / (long)sizeof **out) return 0;
+        want *= 2;
     }
-    for (i = 0, j = 0; i < k; i++) if (!j || ys[j - 1] != ys[i]) ys[j++] = ys[i];
-    return j;
+    if (!(o = e->alloc(e->ctx, (unsigned long)want * sizeof *o))) return 0;
+    for (i = 0; i < used; i++) o[i] = (*out)[i];
+    e->free(e->ctx, *out);
+    *out = o; *cap = want;
+    return 1;
 }
 
 static int combine(const struct px_env *e, pixman_region32_t *dst, const pixman_region32_t *ra,
                    const pixman_region32_t *rb, int unite) {
-    long na, nb, ne, i, nout = 0, cap, prev_start = -1, prev_n = 0;
+    long na, nb, nout = 0, cap, prev_start = -1, prev_n = 0, sa = 0, la = 0, sb = 0, lb = 0;
     const pixman_box32_t *a = boxes(ra, &na), *b = boxes(rb, &nb);
-    int *ys, *sa, *sb, *out_x;
     pixman_box32_t *out;
-    int ok;
+    int y0, ok;
     if (!unite && (!na || !nb)) { drop(e, dst); set_empty(dst); return 1; }
-    cap = 2 * (na + nb) + 2;
-    ys = e->alloc(e->ctx, (unsigned long)cap * sizeof *ys);
-    sa = e->alloc(e->ctx, (unsigned long)(2 * na + 2) * sizeof *sa);
-    sb = e->alloc(e->ctx, (unsigned long)(2 * nb + 2) * sizeof *sb);
-    out_x = e->alloc(e->ctx, (unsigned long)(2 * (na + nb) + 2) * sizeof *out_x);
-    /* at most (bands) x (spans a band) boxes */
-    out = e->alloc(e->ctx, (unsigned long)(cap * (na + nb + 1)) * sizeof *out);
-    if (!ys || !sa || !sb || !out_x || !out) {
-        if (ys) e->free(e->ctx, ys);
-        if (sa) e->free(e->ctx, sa);
-        if (sb) e->free(e->ctx, sb);
-        if (out_x) e->free(e->ctx, out_x);
-        if (out) e->free(e->ctx, out);
-        return 0;
-    }
-    ne = edges(a, na, b, nb, ys);
-    for (i = 0; i + 1 < ne; i++) {
-        int y0 = ys[i], y1 = ys[i + 1];
-        long ka = spans_at(a, na, y0, sa, 2 * na + 2), kb = spans_at(b, nb, y0, sb, 2 * nb + 2), ia = 0, ib = 0, k = 0, j;
+    if (!na && !nb) { drop(e, dst); set_empty(dst); return 1; }
+    if (na > 0x7FFFFFFFL / 4 / (long)sizeof *out || nb > 0x7FFFFFFFL / 4 / (long)sizeof *out) return 0;
+    cap = na + nb + 4;
+    if (!(out = e->alloc(e->ctx, (unsigned long)cap * sizeof *out))) return 0;
+    /* the cuts: every y where a box of either side starts or ends, in order */
+    y0 = !na ? b[0].y1 : !nb ? a[0].y1 : a[0].y1 < b[0].y1 ? a[0].y1 : b[0].y1;
+    for (;;) {
+        long ka, kb, ia = 0, ib = 0, k = 0, j;
+        const pixman_box32_t *pa, *pb;
+        pixman_box32_t *o;
+        int y1, ea, eb;
+        ka = band_at(a, na, &sa, &la, y0);
+        kb = band_at(b, nb, &sb, &lb, y0);
+        if (!unite && (sa >= na || sb >= nb)) break;   /* nothing more in common */
+        ea = next_edge(a, na, sa, y0, y0);
+        eb = next_edge(b, nb, sb, y0, y0);
+        if (ea == y0 && eb == y0) break;               /* both regions done */
+        y1 = ea == y0 ? eb : eb == y0 ? ea : ea < eb ? ea : eb;
+        pa = a + sa; pb = b + sb;
         /* the band's spans: both sorted already (a band's boxes are in x order) */
+        if (!room(e, &out, &cap, nout, ka + kb)) { e->free(e->ctx, out); return 0; }
+        o = out + nout;
         if (unite) {
             while (ia < ka || ib < kb) {
                 int x0, x1;
-                if (ib >= kb || (ia < ka && sa[ia] <= sb[ib])) { x0 = sa[ia]; x1 = sa[ia + 1]; ia += 2; }
-                else { x0 = sb[ib]; x1 = sb[ib + 1]; ib += 2; }
-                if (k && out_x[k - 1] >= x0) { if (x1 > out_x[k - 1]) out_x[k - 1] = x1; }
-                else { out_x[k++] = x0; out_x[k++] = x1; }
+                if (ib >= kb || (ia < ka && pa[ia].x1 <= pb[ib].x1)) { x0 = pa[ia].x1; x1 = pa[ia].x2; ia++; }
+                else { x0 = pb[ib].x1; x1 = pb[ib].x2; ib++; }
+                if (k && o[k - 1].x2 >= x0) { if (x1 > o[k - 1].x2) o[k - 1].x2 = x1; }
+                else { o[k].x1 = x0; o[k].x2 = x1; k++; }
             }
         } else {
             while (ia < ka && ib < kb) {
-                int x0 = sa[ia] > sb[ib] ? sa[ia] : sb[ib], x1 = sa[ia + 1] < sb[ib + 1] ? sa[ia + 1] : sb[ib + 1];
-                if (x0 < x1) { out_x[k++] = x0; out_x[k++] = x1; }
-                if (sa[ia + 1] < sb[ib + 1]) ia += 2; else ib += 2;
+                int x0 = pa[ia].x1 > pb[ib].x1 ? pa[ia].x1 : pb[ib].x1, x1 = pa[ia].x2 < pb[ib].x2 ? pa[ia].x2 : pb[ib].x2;
+                if (x0 < x1) { o[k].x1 = x0; o[k].x2 = x1; k++; }
+                if (pa[ia].x2 < pb[ib].x2) ia++; else ib++;
             }
         }
-        if (!k) { prev_start = -1; continue; }
+        if (!k) { prev_start = -1; y0 = y1; continue; }
         /* the same spans as the band just above, touching it: one band */
-        if (prev_start >= 0 && prev_n == k / 2 && out[prev_start].y2 == y0) {
-            for (j = 0; j < k / 2; j++)
-                if (out[prev_start + j].x1 != out_x[2 * j] || out[prev_start + j].x2 != out_x[2 * j + 1]) break;
-            if (j == k / 2) {
-                for (j = 0; j < k / 2; j++) out[prev_start + j].y2 = y1;
+        if (prev_start >= 0 && prev_n == k && out[prev_start].y2 == y0) {
+            for (j = 0; j < k; j++)
+                if (out[prev_start + j].x1 != o[j].x1 || out[prev_start + j].x2 != o[j].x2) break;
+            if (j == k) {
+                for (j = 0; j < k; j++) out[prev_start + j].y2 = y1;
+                y0 = y1;
                 continue;
             }
         }
-        prev_start = nout; prev_n = k / 2;
-        for (j = 0; j < k / 2; j++) {
-            out[nout].x1 = out_x[2 * j]; out[nout].x2 = out_x[2 * j + 1];
-            out[nout].y1 = y0; out[nout].y2 = y1;
-            nout++;
-        }
+        prev_start = nout; prev_n = k;
+        for (j = 0; j < k; j++) { o[j].y1 = y0; o[j].y2 = y1; }
+        nout += k;
+        y0 = y1;
     }
     ok = set_boxes(e, dst, out, nout);
-    e->free(e->ctx, ys); e->free(e->ctx, sa); e->free(e->ctx, sb); e->free(e->ctx, out_x); e->free(e->ctx, out);
+    e->free(e->ctx, out);
     return ok;
 }
 
