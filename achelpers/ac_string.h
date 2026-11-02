@@ -1,12 +1,12 @@
 /*
- * openamigapixman: forced into every compile of upstream Pixman (-include)
+ * gfopenpixman: forced into every compile of upstream Pixman (-include)
  * when build-static.sh runs with AC_HELPERS=1. Pixman's memcpy, memmove and
  * memset calls go through the front doors of AC090's native helpers
- * (amigachrome-guest's ac_helpers.h): under 64 bytes, GCC's own code as
+ * (amicradle-guest's ac_helpers.h): under 64 bytes, GCC's own code as
  * before (pixman.library's own small memcpy and memset in
  * library/pixman_runtime.c, which is never built with this header); from 64
  * bytes, the tagged functions, which run as host code on AmiCradle and as
- * 68k code written for the 68020 and 68040 elsewhere. As openamigaimage's
+ * 68k code written for the 68020 and 68040 elsewhere. As gfopenimage's
  * achelpers/ac_string.h.
  * MIT, Copyright (c) 2026 AmiCradle Team.
  */
