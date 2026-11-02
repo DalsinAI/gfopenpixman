@@ -4,7 +4,7 @@
 # No upstream Pixman and no floating point: built for the 68040 with
 # -msoft-float, so it also runs on an LC040 or EC040; the build fails if an
 # FPU instruction or anything undefined gets in. Bare (no startup code or C
-# library), as openamigartg's libraries are. Needs gfopengpu.library with
+# library), as gfopenrtg's libraries are. Needs gfopengpu.library with
 # GFOpenGPU stream v1.4 at run time.
 #   ./build-library.sh             (STOVE= the os32-gcc16 stove, OUT= default out/)
 set -eu

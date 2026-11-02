@@ -1,7 +1,7 @@
 /* Copyright (c) 2026 AmiCradle Team. MIT licence (LICENSE).
  *
  * pixman.library's core (DESIGN.md): Pixman's calls turned into GFOpenGPU
- * batches (stream v1.4, openamigartg include/gfopengpu/stream.h). It draws
+ * batches (stream v1.4, gfopenrtg include/gfopengpu/stream.h). It draws
  * nothing itself. Plain C with no Amiga headers, no C library and no
  * floating point, so the same file builds into the library and into the
  * test that runs it beside upstream Pixman (tests/pixmantest.c). */

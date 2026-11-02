@@ -13,7 +13,7 @@ No upstream Pixman is inside the library. Upstream Pixman 0.46.4 is the referenc
 - **Library version:** 2.1.
   - 2.1 (1 November 2026): region unions and intersections grow their output as they go and walk the bands in one pass. Before, a region of a few hundred boxes asked for a block of megabytes, and the call failed on an Amiga.
   - 2.0 (17 October 2026): the thin layer over GFOpenGPU, with no upstream Pixman inside.
-- **Needs:** gfopengpu.library with GFOpenGPU stream v1.4 (COMPOSITE_PD; DalsinAI/openamigartg). Without it, `OpenLibrary("pixman.library")` fails.
+- **Needs:** gfopengpu.library with GFOpenGPU stream v1.4 (COMPOSITE_PD; DalsinAI/gfopenrtg). Without it, `OpenLibrary("pixman.library")` fails.
 - **CPU:** 68040, soft float. The library has no floating point at all, so it also runs on an LC040 or EC040. The build fails if an FPU instruction gets in.
 - **Formats:** a8r8g8b8, x8r8g8b8, b8g8r8a8, r5g6b5, x1r5g5b5 and a8.
 - **Operators:** CLEAR to ADD.
@@ -31,7 +31,7 @@ tests/run.sh [CASES]    # pixman.library against upstream Pixman, on qemu-m68k
 ```
 
 - **The stove.** All four use the os32-gcc16 stove (`STOVE=`).
-- **The library's only outside code** is GFOpenGPU's batch builder, `vendor/openamigartg/library/opengpu/ogpu_build.c`. `vendor/openamigartg/OPENAMIGARTG_COMMIT` says which openamigartg commit it comes from.
+- **The library's only outside code** is GFOpenGPU's batch builder, `vendor/openamigartg/library/opengpu/ogpu_build.c`. `vendor/openamigartg/OPENAMIGARTG_COMMIT` says which gfopenrtg commit it comes from.
 - **The test needs** `m68k-linux-gnu-gcc` and `qemu-m68k`, and the Pixman release tarball in `tarballs/`. The test never fetches it: put it there, or run `fetch-sources.sh`.
 - **`build-static.sh`** still builds upstream Pixman for AmigaOS as `libpixman-1.a`, for comparisons. pixman.library doesn't use it.
 
@@ -49,12 +49,12 @@ tests/run.sh [CASES]    # pixman.library against upstream Pixman, on qemu-m68k
 
 ## Browser
 
-`BROWSER_ACCELERATION_DESIGN.md` explains why a fast 2D layer under the browser matters. cairo and WebKit link upstream Pixman statically today (openamigacairo). `DESIGN.md` section 1 lists what cairo calls, and so what pixman.library's interface still needs before cairo can use it.
+`BROWSER_ACCELERATION_DESIGN.md` explains why a fast 2D layer under the browser matters. cairo and WebKit link upstream Pixman statically today (gfopencairo). `DESIGN.md` section 1 lists what cairo calls, and so what pixman.library's interface still needs before cairo can use it.
 
 ## AC090's native helpers
 
-`achelpers/` (SPD-20) belonged to 1.0. It routed Pixman's copies and fills through amigachrome-guest's AC090 magic functions. 2.0 has no copies or fills of its own: they are GFOpenGPU's FILL and COPY. `build-static.sh` still uses the helpers when it builds upstream Pixman.
+`achelpers/` (SPD-20) belonged to 1.0. It routed Pixman's copies and fills through amicradle-guest's AC090 magic functions. 2.0 has no copies or fills of its own: they are GFOpenGPU's FILL and COPY. `build-static.sh` still uses the helpers when it builds upstream Pixman.
 
 ## Licensing
 
-OpenAmigaPixman's library, ABI and test code are MIT licensed by the AmiCradle Team. The files in `vendor/openamigartg` keep openamigartg's MIT licence. Upstream Pixman, used by the tests and `build-static.sh` only, keeps its own MIT licence and copyright notices.
+OpenAmigaPixman's library, ABI and test code are MIT licensed by the AmiCradle Team. The files in `vendor/openamigartg` keep gfopenrtg's MIT licence. Upstream Pixman, used by the tests and `build-static.sh` only, keeps its own MIT licence and copyright notices.

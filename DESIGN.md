@@ -15,9 +15,9 @@ The Team's decision, 17 October 2026: pixman.library becomes a thin passthrough 
 
 | Caller | How it draws today | pixman.library? |
 | --- | --- | --- |
-| **cairo** (openamigacairo, 1.18.6) | links upstream Pixman statically (`-lpixman-1`, built by openamigacairo's `build.sh`) | no |
-| **WebKit** (openamigabrowser) | through cairo; `src/webcore/CMakeLists.txt` links `cairo pixman-1` | no |
-| **SDL 2** (openamigartg `library/modules/sdl2`) | its own renderer, on GFOpenGPU | no |
+| **cairo** (gfopencairo, 1.18.6) | links upstream Pixman statically (`-lpixman-1`, built by gfopencairo's `build.sh`) | no |
+| **WebKit** (gfopenbrowser) | through cairo; `src/webcore/CMakeLists.txt` links `cairo pixman-1` | no |
+| **SDL 2** (gfopenrtg `library/modules/sdl2`) | its own renderer, on GFOpenGPU | no |
 | `tests/pixmansmoke.c` (PixmanTest), `bench/pixbench.c` (PixBench) | the library's calls | yes |
 
 The real users today are only these two test programs. So 2.0 changes nobody's output: no shipped program loses an operation.
@@ -40,7 +40,7 @@ Its operators, by call sites: SRC 20, OUT_REVERSE 18, ADD 14, LERP_SRC 9, CLEAR 
 
 ## 2. The call map
 
-`library/px_core.c` turns each call into one GFOpenGPU batch (stream v1.4, openamigartg `include/gfopengpu/stream.h`). It sends the batch with `OGPU_Submit` and waits for its fence, so the caller's pixels are there when the call returns, as Pixman's are.
+`library/px_core.c` turns each call into one GFOpenGPU batch (stream v1.4, gfopenrtg `include/gfopengpu/stream.h`). It sends the batch with `OGPU_Submit` and waits for its fence, so the caller's pixels are there when the call returns, as Pixman's are.
 
 The destination is surface slot 0 and the target. The source is slot 1, and the mask is slot 2.
 
@@ -63,7 +63,7 @@ The destination is surface slot 0 and the target. The source is slot 1, and the 
 
 ### COMPOSITE_PD, GFOpenGPU's part of this PR
 
-openamigartg's branch `pixman/passthrough-20261017` adds COMPOSITE_PD to GFOpenGPU (stream v1.4).
+gfopenrtg's branch `pixman/passthrough-20261017` adds COMPOSITE_PD to GFOpenGPU (stream v1.4).
 
 - **Why it was needed.** GFOpenGPU's COMPOSITE blends straight (not premultiplied) colour, as SDL wants. Pixman's colour is premultiplied, and Pixman has the Porter-Duff operators. OVER of a premultiplied source cannot be made from COMPOSITE's OVER, ADD or IN without un-premultiplying every pixel on the 68k first.
 - **What it does.**
@@ -102,13 +102,13 @@ The core refuses these: it counts them (`px_stats.refused`) and draws nothing. `
 | 7 | Formats: a1 and a4 masks, r8g8b8 (24 bits), a8b8g8r8 and x8b8g8r8, b8g8r8x8, r8g8b8a8, a1r5g5b5, b5g6r5, a4r4g4b4, grey and indexed, the float and sRGB formats | GFOpenGPU formats (stream.h's list) | medium. a1 and r8g8b8 first, for cairo |
 | 8 | Gradient sources (linear, radial, conical) | GFOpenGPU, a gradient source for COMPOSITE_PD | medium |
 | 9 | Trapezoids, triangles, the glyph cache | the ABI first (not in it), then GFOpenGPU: an A8 rasteriser for edges, and glyph runs as one batch of MASK or COMPOSITE_PD commands | big |
-| 10 | **COMPOSITE_PD on the host.** ACRTG.gpu answers GFOpenGPU's queries from a list of the opcodes it knows (amigachrome-guest `libraries/acrtg.gpu`), and the Cradle's runtime runs a pinned copy of openamigartg's core (amigachrome `vendor/openamigartg`). Neither has v1.4 yet. Until both do, a batch with COMPOSITE_PD runs on gfopengpu.library's 68k back end. FILL and COPY reach the host now | amigachrome-guest (ACRTG.gpu: v1.4 behind the runtime's minor version), amigachrome (the pin, and `ogpu_vk.c` for the GPU) | small, then a runtime deploy |
-| 11 | Images in Fast RAM out of the GPU's reach under Vulkan | GFOpenGPU's 2D design (amigachrome docs/design, Design-GFOpenGPU-2D-On-The-GPU, section 5.4) | as there |
+| 10 | **COMPOSITE_PD on the host.** ACRTG.gpu answers GFOpenGPU's queries from a list of the opcodes it knows (amicradle-guest `libraries/acrtg.gpu`), and the Cradle's runtime runs a pinned copy of gfopenrtg's core (amicradle `vendor/openamigartg`). Neither has v1.4 yet. Until both do, a batch with COMPOSITE_PD runs on gfopengpu.library's 68k back end. FILL and COPY reach the host now | amicradle-guest (ACRTG.gpu: v1.4 behind the runtime's minor version), amicradle (the pin, and `ogpu_vk.c` for the GPU) | small, then a runtime deploy |
+| 11 | Images in Fast RAM out of the GPU's reach under Vulkan | GFOpenGPU's 2D design (amicradle docs/design, Design-GFOpenGPU-2D-On-The-GPU, section 5.4) | as there |
 | 12 | A screen's bitmap as a pixman image (drawing straight into a GFOpenRTG screen) | GFOpenRTG (`ORTG_BitMapInfo` gives address and format) plus one new LVO here | small |
 
 ## 5. Stages
 
-1. **Done (this PR, openamigapixman and openamigartg):**
+1. **Done (this PR, gfopenpixman and gfopenrtg):**
    - fills, blits and rectangle fills;
    - every composite of the operators CLEAR to ADD, from solid or image sources, with A8, ARGB32 or solid masks, repeat NONE or NORMAL, and integer translations, into the six formats;
    - regions.
@@ -161,9 +161,9 @@ PixBench and PixmanTest still use the FPU for their timing arithmetic, as before
 
 Gap 10 is being closed by three pull requests:
 
-- **amigachrome:** the runtime's core repinned to stream v1.4 and built with `OGPU_HOST`. It copies rows with memmove, and does the image OVER and the solid-through-A8 OVER on whole pixels, with the same bytes.
-- **amigachrome-guest:** ACRTG.gpu takes COMPOSITE_PD from a minor-4 runtime.
-- **openamigartg:** the host paths in the core.
+- **amicradle:** the runtime's core repinned to stream v1.4 and built with `OGPU_HOST`. It copies rows with memmove, and does the image OVER and the solid-through-A8 OVER on whole pixels, with the same bytes.
+- **amicradle-guest:** ACRTG.gpu takes COMPOSITE_PD from a minor-4 runtime.
+- **gfopenrtg:** the host paths in the core.
 
 That runtime has not been deployed yet. Lab t4-g-px ran it as a build of that branch (`lab_instance.py --binary`). The figures are PixBench, 640×480, medians of three, µs a call, with each 2.0 run alternating with a 1.0 run on the deployed runtime. The host was heavily loaded (load average 33 to 39 on 12 threads), so single runs vary by up to 8 times.
 

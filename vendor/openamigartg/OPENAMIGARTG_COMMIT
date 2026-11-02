@@ -1,8 +1,8 @@
 7e947c617387dcd4d82bdf2443921c4fac9e37f8
-# Copied from DalsinAI/openamigartg, branch pixman/passthrough-20261017 (GFOpenGPU stream v1.4, COMPOSITE_PD),
+# Copied from DalsinAI/gfopenrtg, branch pixman/passthrough-20261017 (GFOpenGPU stream v1.4, COMPOSITE_PD),
 # unchanged. Repin to main once that branch is merged.
 #   include/gfopengpu/stream.h build.h gfopengpu.h, include/inline/gfopengpu.h   the stream, the builder, the calls
 #   library/opengpu/ogpu_build.c                                         built into pixman.library (writes batches)
 #   library/opengpu/ogpu_core.c ogpu_core.h                              tests only (tests/run.sh): GFOpenGPU's core,
 #                                                                         run beside upstream Pixman; never in the library
-#   LICENSE                                                              openamigartg's (MIT)
+#   LICENSE                                                              gfopenrtg's (MIT)

@@ -13,20 +13,20 @@ TARBALL="$HERE/tarballs/pixman-0.46.4.tar.gz"
 WORK="$HERE/work/pixman-0.46.4"
 OUT=${OUT:-"$HERE/out"}
 OBJ="$HERE/work/obj-pixman"
-# AC090's native helpers (SPD-20), as openamigaimage builds them:
+# AC090's native helpers (SPD-20), as gfopenimage builds them:
 #   AC_HELPERS  1: Pixman's memcpy, memmove and memset calls of 64 bytes or
 #               more, and pixman.library's own copies and fills, go through
-#               amigachrome-guest's common/amiga/ac_helpers (magic functions
+#               amicradle-guest's common/amiga/ac_helpers (magic functions
 #               AmiCradle's AC090 runs as host code; 68k code written for the
 #               68020 and 68040 on a real Amiga); 0: as before; auto (default):
-#               1 when the pinned amigachrome-guest commit is to hand, else 0
+#               1 when the pinned amicradle-guest commit is to hand, else 0
 #   AMIGACHROME_GUEST  checkout holding AMIGACHROME_GUEST_PINNED_COMMIT
-#               (default ../amigachrome-guest, else ../guest)
+#               (default ../amicradle-guest, else ../guest)
 AC_HELPERS=${AC_HELPERS:-auto}
 case "$AC_HELPERS" in 0|1|auto) ;; *) echo "AC_HELPERS must be 0, 1 or auto, not $AC_HELPERS"; exit 2 ;; esac
 if [ "$AC_HELPERS" = auto ]; then
   if sh "$HERE/achelpers/achelpers.sh" --have; then AC_HELPERS=1
-  else AC_HELPERS=0; echo "AC090 native helpers: off (no amigachrome-guest checkout with $(cut -c1-12 "$HERE/AMIGACHROME_GUEST_PINNED_COMMIT"); set AMIGACHROME_GUEST)"; fi
+  else AC_HELPERS=0; echo "AC090 native helpers: off (no amicradle-guest checkout with $(cut -c1-12 "$HERE/AMIGACHROME_GUEST_PINNED_COMMIT"); set AMIGACHROME_GUEST)"; fi
 fi
 ACH="$HERE/work/achelpers"
 ACFLAGS=
@@ -92,5 +92,5 @@ echo "$OUT/lib/libpixman-1.a ($(wc -c < "$OUT/lib/libpixman-1.a") bytes)"
 if [ "$AC_HELPERS" = 1 ]; then
   cp "$ACH/libachelpers.a" "$OUT/lib/libachelpers.a"
   echo "$ACH" > "$OUT/lib/ac_helpers.on"     # build-library.sh links pixman.library with them
-  echo "AC090 native helpers: on (amigachrome-guest $(cut -c1-12 "$HERE/AMIGACHROME_GUEST_PINNED_COMMIT"))"
+  echo "AC090 native helpers: on (amicradle-guest $(cut -c1-12 "$HERE/AMIGACHROME_GUEST_PINNED_COMMIT"))"
 fi
